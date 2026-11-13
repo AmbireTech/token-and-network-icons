@@ -11,15 +11,15 @@ a network request (faster, and it doesn't reveal which tokens a user holds). Use
   relayer config, every token from the [Uniswap Labs Default token list](https://tokens.uniswap.org)
   on the app's predefined networks, and a few custom tokens (WALLET, stkWALLET, Citrea's WcBTC).
 - `assets/networkIcons/<chainId>.png`: every network in the relayer config that has an icon.
-- `index/`: generated lists of the icons above, imported by the apps:
-  - `bundledTokenIconKeys.ts` and `bundledNetworkIconChainIds.ts` list which icons exist (mobile).
-  - `bundledTokenIconSources.web.ts` and `bundledNetworkIconUris.web.ts` `require` the PNGs (web).
+- `index/`: `bundledTokenIconKeys.ts` and `bundledNetworkIconChainIds.ts`, generated lists of which
+  icons exist, imported by the apps. The apps load the icons by path and never `require` them, so
+  they don't end up in the JS.
 
 All icons are 64x64 PNGs.
 
-> Keep only icons in `assets/`. The mobile apps package everything in it: iOS through Xcode folder
-> references to `assets/tokenIcons` and `assets/networkIcons`, and Android through a Gradle assets
-> folder pointing to `assets/`.
+> Keep only icons in `assets/`. The apps ship everything in it: iOS through Xcode folder references
+> to `assets/tokenIcons` and `assets/networkIcons`, Android through a Gradle assets folder pointing
+> to `assets/`, and the web builds by copying it next to their pages.
 
 ## Refreshing the icons
 

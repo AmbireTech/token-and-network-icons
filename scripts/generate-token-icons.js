@@ -11,13 +11,12 @@
  *
  * Output (committed, re-run to refresh):
  * - assets/tokenIcons/<chainId>/<lowercaseAddress>.png (64x64)
- * - index/bundledTokenIconKeys.ts (which icons exist, for mobile)
- * - index/bundledTokenIconSources.web.ts (require map, for web)
+ * - index/bundledTokenIconKeys.ts (which icons exist)
  *
- * On mobile the icons are part of the native app (an Xcode folder reference and a Gradle assets
- * dir both point to assets/), NOT the JS bundle. Otherwise every OTA update would ship them again.
- * So only `bundledTokenIconSources.web.ts` may `require` the PNGs, and new icons reach mobile
- * users with the next native build.
+ * The apps load the icons by path and never `require` them. On mobile they are part of the native
+ * app (an Xcode folder reference and a Gradle assets dir both point to assets/), NOT the JS bundle,
+ * otherwise every OTA update would ship them again; new icons reach mobile users with the next
+ * native build. The web builds copy assets/ next to their pages, keeping the icons out of the JS.
  *
  * Usage: npm run generate:token-icons
  */
@@ -76,8 +75,6 @@ const CUSTOM_TOKENS = [
 
 const OUTPUT_DIR = path.join(ASSETS_DIR, 'tokenIcons')
 const KEYS_INDEX_PATH = path.join(INDEX_DIR, 'bundledTokenIconKeys.ts')
-const WEB_SOURCES_INDEX_PATH = path.join(INDEX_DIR, 'bundledTokenIconSources.web.ts')
-const ICONS_PATH_FROM_INDEX = '../assets/tokenIcons'
 
 const toFetchableUrl = (uri) => {
   if (!uri) return null
@@ -145,34 +142,18 @@ const writeIndexFiles = (entries, sourceDescription) => {
   const keysContent = `${header}
 
 /**
- * Tokens whose icon ships inside the native mobile app, as \`\${chainId}:\${lowercaseAddress}\`.
- * Mobile must not \`require\` the PNGs (that would put them in every OTA update), so it only
- * needs to know which ones exist.
+ * Tokens whose icon ships with the apps, as \`\${chainId}:\${lowercaseAddress}\`, stored as
+ * \`assets/tokenIcons/<chainId>/<lowercaseAddress>.png\`. The apps load the icons by path and never
+ * \`require\` them: on mobile that would put them in every OTA update, and on web in the JS every
+ * page loads.
  */
 export const BUNDLED_TOKEN_ICON_KEYS: ReadonlySet<string> = new Set([
 ${sortedEntries.map(({ key }) => `  '${key}',`).join('\n')}
 ])
 `
 
-  const webSourcesContent = `${header}
-import type { ImageSourcePropType } from 'react-native'
-
-/**
- * Token icons bundled with the web builds, keyed by \`\${chainId}:\${lowercaseAddress}\`.
- * Web only - see \`BUNDLED_TOKEN_ICON_KEYS\` for why mobile can't use it.
- */
-export const BUNDLED_TOKEN_ICON_SOURCES: { [chainIdAndAddress: string]: ImageSourcePropType } = {
-${sortedEntries
-  .map(
-    ({ key, relativePath }) => `  '${key}': require('${ICONS_PATH_FROM_INDEX}/${relativePath}'),`
-  )
-  .join('\n')}
-}
-`
-
   fs.mkdirSync(INDEX_DIR, { recursive: true })
   fs.writeFileSync(KEYS_INDEX_PATH, keysContent)
-  fs.writeFileSync(WEB_SOURCES_INDEX_PATH, webSourcesContent)
 }
 
 const main = async () => {
@@ -192,7 +173,7 @@ const main = async () => {
       const pngBuffer = await getIconPngBuffer(token, platformIdByChainId)
       fs.mkdirSync(path.join(OUTPUT_DIR, String(token.chainId)), { recursive: true })
       fs.writeFileSync(path.join(OUTPUT_DIR, relativePath), pngBuffer)
-      indexEntries.push({ key: `${token.chainId}:${lowercaseAddress}`, relativePath })
+      indexEntries.push({ key: `${token.chainId}:${lowercaseAddress}` })
     } catch (error) {
       failures.push(`${token.chainId} ${token.symbol} ${token.address} -> ${error.message}`)
     }

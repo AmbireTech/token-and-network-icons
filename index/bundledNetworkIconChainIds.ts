@@ -3,9 +3,9 @@
 // Source: https://relayer.ambire.com/v2/config/networks
 
 /**
- * Chain ids of the networks whose icon ships inside the native mobile app. Mobile must not
- * `require` the PNGs (that would put them in every OTA update), so it only needs to know which
- * ones exist.
+ * Chain ids of the networks whose icon ships with the apps, as `assets/networkIcons/<chainId>.png`.
+ * The apps load the icons by path and never `require` them: on mobile that would put them in every
+ * OTA update, and on web in the JS every page loads.
  */
 export const BUNDLED_NETWORK_ICON_CHAIN_IDS: ReadonlySet<string> = new Set([
   '1',

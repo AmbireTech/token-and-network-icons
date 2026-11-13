@@ -8,8 +8,7 @@
  *
  * Output (committed, re-run to refresh):
  * - assets/networkIcons/<chainId>.png (64x64)
- * - index/bundledNetworkIconChainIds.ts (which icons exist, for mobile)
- * - index/bundledNetworkIconUris.web.ts (require map, for web)
+ * - index/bundledNetworkIconChainIds.ts (which icons exist)
  *
  * Usage: npm run generate:network-icons
  */
@@ -25,8 +24,6 @@ const {
 
 const OUTPUT_DIR = path.join(ASSETS_DIR, 'networkIcons')
 const CHAIN_IDS_INDEX_PATH = path.join(INDEX_DIR, 'bundledNetworkIconChainIds.ts')
-const WEB_URIS_INDEX_PATH = path.join(INDEX_DIR, 'bundledNetworkIconUris.web.ts')
-const ICONS_PATH_FROM_INDEX = '../assets/networkIcons'
 
 const writeIndexFiles = (chainIds, sourceDescription) => {
   const sortedChainIds = [...chainIds].sort((a, b) => Number(a) - Number(b))
@@ -37,31 +34,17 @@ const writeIndexFiles = (chainIds, sourceDescription) => {
   const chainIdsContent = `${header}
 
 /**
- * Chain ids of the networks whose icon ships inside the native mobile app. Mobile must not
- * \`require\` the PNGs (that would put them in every OTA update), so it only needs to know which
- * ones exist.
+ * Chain ids of the networks whose icon ships with the apps, as \`assets/networkIcons/<chainId>.png\`.
+ * The apps load the icons by path and never \`require\` them: on mobile that would put them in every
+ * OTA update, and on web in the JS every page loads.
  */
 export const BUNDLED_NETWORK_ICON_CHAIN_IDS: ReadonlySet<string> = new Set([
 ${sortedChainIds.map((chainId) => `  '${chainId}',`).join('\n')}
 ])
 `
 
-  const webUrisContent = `${header}
-
-/**
- * Network icons bundled with the web builds, keyed by chain id. Web only - see
- * \`BUNDLED_NETWORK_ICON_CHAIN_IDS\` for why mobile can't use it.
- */
-export const BUNDLED_NETWORK_ICON_URIS: { [chainId: string]: string } = {
-${sortedChainIds
-  .map((chainId) => `  '${chainId}': require('${ICONS_PATH_FROM_INDEX}/${chainId}.png'),`)
-  .join('\n')}
-}
-`
-
   fs.mkdirSync(INDEX_DIR, { recursive: true })
   fs.writeFileSync(CHAIN_IDS_INDEX_PATH, chainIdsContent)
-  fs.writeFileSync(WEB_URIS_INDEX_PATH, webUrisContent)
 }
 
 const main = async () => {

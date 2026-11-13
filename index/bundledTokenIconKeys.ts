@@ -3,9 +3,10 @@
 // Source: Uniswap Labs Default token list v22.34.0 and https://relayer.ambire.com/v2/config/networks, icons via https://cena.ambire.com/iconProxy
 
 /**
- * Tokens whose icon ships inside the native mobile app, as `${chainId}:${lowercaseAddress}`.
- * Mobile must not `require` the PNGs (that would put them in every OTA update), so it only
- * needs to know which ones exist.
+ * Tokens whose icon ships with the apps, as `${chainId}:${lowercaseAddress}`, stored as
+ * `assets/tokenIcons/<chainId>/<lowercaseAddress>.png`. The apps load the icons by path and never
+ * `require` them: on mobile that would put them in every OTA update, and on web in the JS every
+ * page loads.
  */
 export const BUNDLED_TOKEN_ICON_KEYS: ReadonlySet<string> = new Set([
   '1:0x0000000000000000000000000000000000000000',
