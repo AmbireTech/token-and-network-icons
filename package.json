@@ -1,0 +1,17 @@
+{
+  "name": "token-and-network-icons",
+  "private": true,
+  "description": "Token and network icons bundled with the Ambire wallet apps",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "generate": "npm run generate:token-icons && npm run generate:network-icons",
+    "generate:token-icons": "node scripts/generate-token-icons.js",
+    "generate:network-icons": "node scripts/generate-network-icons.js"
+  },
+  "devDependencies": {
+    "sharp": "0.35.5"
+  }
+}
