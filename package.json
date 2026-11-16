@@ -1,10 +1,20 @@
 {
-  "name": "token-and-network-icons",
-  "private": true,
+  "name": "@ambire/token-and-network-icons",
+  "version": "1.0.0",
   "description": "Token and network icons bundled with the Ambire wallet apps",
   "license": "MIT",
-  "engines": {
-    "node": ">=22"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmbireTech/token-and-network-icons.git"
+  },
+  "files": [
+    "assets/tokenIcons",
+    "assets/networkIcons",
+    "index/tokenIconKeys.json",
+    "index/networkIconChainIds.json"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "generate": "npm run generate:token-icons && npm run generate:network-icons",
